@@ -8,6 +8,10 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
+.bold {
+  font-weight: 700;
+}
+
 .axis--x path {
   display: none;
 }
@@ -31,34 +35,48 @@ body {
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 
-let svg = d3.select("#tail")
-.attr("width", window.innerWidth * 0.95)
-.attr("height", 400);
+  let svg = d3.select("#tail")
+  .attr("width", window.innerWidth * 0.95)
+  .attr("height", 400);
 
-let margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.top - margin.bottom;
+  let margin = {top: 20, right: 20, bottom: 30, left: 40},
+  width = +svg.attr("width") - margin.left - margin.right,
+  height = +svg.attr("height") - margin.top - margin.bottom;
 
-let x = d3.scaleBand()
-.range([0, width]);
+  let x = d3.scaleBand()
+  .range([0, width]);
 
-let y = d3.scalePow()
-.exponent(0.4)
-.range([height, 0]);
+  let y = d3.scalePow()
+  .exponent(0.4)
+  .range([height, 0]);
 
-let g = svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  let opacity = d3.scaleLinear()
+  .range([0,1]);
 
-d3.csv("chemtrails.csv", function(d) {
-  d.weight = +d.weight;
-  return d;
-}, function(error, data) {
-  if (error) throw error;
+  let g = svg.append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  console.log(data);
+// LOAD DATA
 
-  x.domain(data.map(function(d) { return d.pair; }));
-  y.domain([1e-6, d3.max(data, function(d) { return +d.weight; })]);
+  d3.csv("chemtrail.csv", function(d) {
+    d.weight = +d.weight;
+    return d;
+  }, function(error, data) {
+    if (error) throw error;
+    d3.csv("list.csv", function(error2, data2) {
+
+      console.log(data);
+      console.log(data2);
+
+      let allData = [data,data2];
+
+      console.log(allData);
+
+      x.domain(data.map(function(d) { return d.pair; }));
+      y.domain([1e-6, d3.max(data, function(d) { return +d.weight; })]);
+      opacity.domain(d3.extent(data, function(d) {
+        return +d.users;
+      }));
 
   // g.append("g")
   //     .attr("class", "axis axis--x")
@@ -66,14 +84,14 @@ d3.csv("chemtrails.csv", function(d) {
   //     .call(d3.axisBottom(x));
 
   g.append("g")
-      .attr("class", "axis axis--y")
-      .call(d3.axisLeft(y).ticks(10))
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("text-anchor", "end")
-      .text("Frequency");
+  .attr("class", "axis axis--y")
+  .call(d3.axisLeft(y).ticks(10))
+  .append("text")
+  .attr("transform", "rotate(-90)")
+  .attr("y", 6)
+  .attr("dy", "0.71em")
+  .attr("text-anchor", "end")
+  .text("Frequency");
 
   let sum = d3.sum(data, function(d) {
     return d.weight;
@@ -84,24 +102,28 @@ d3.csv("chemtrails.csv", function(d) {
   let longTail = [];
 
   g.selectAll(".bar")
-    .data(data)
-    .enter()
-      .append("rect")
-      .attr("class", "bar")
-      .attr("x", function(d) { return x(d.pair); })
-      .attr("y", function(d) { return y(+d.weight); })
-      .attr("width", 0.5)
-      .attr("height", function(d) { return height - y(+d.weight); })
-      .attr("fill", function(d) {
-        counter += d.weight;
-        if (counter >= sum / 2) {
+  .data(data)
+  .enter()
+  .append("rect")
+  .attr("class", "bar")
+  // .filter(d => {
+  //   return d.pair === d.list;
+  // })
+  .attr("x", function(d) { return x(d.pair); })
+  .attr("y", function(d) { return y(+d.weight); })
+  .attr("width", x.bandwidth())
+  .attr("height", function(d) { return height - y(+d.weight); })
+  .attr("fill", function(d) {
+    counter += d.weight;
+    if (counter >= sum / 2) {
           // console.log(d)
           longTail.push(d);
           return "#006aff";
         } else {
           return "black";
         }
-      });
+      })
+  .style("opacity", d => { return opacity(d.users)});
 
   // data.forEach( (d, i) => {
   //   // console.log(i)
@@ -113,11 +135,19 @@ d3.csv("chemtrails.csv", function(d) {
   //   }
   // })
 
+  allData.forEach((d,i) => {
+    console.log(d)
+  });
+
   console.log(counter)
   console.log(sum)
   console.log(longTail[0].pair)
 
   d3.select("body").append("p")
+  .text("First pair of hashtags of the long tail:");
+
+  d3.select("body").append("p")
+  .classed("bold", true)
   .text(d => { return longTail[0].pair });
 
   // g.selectAll(".bar")
@@ -129,5 +159,6 @@ d3.csv("chemtrails.csv", function(d) {
   //   }
   // })
 });
+  });
 
 </script>
