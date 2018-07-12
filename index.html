@@ -62,15 +62,9 @@ body {
     d.weight = +d.weight;
     return d;
   }, function(error, data) {
-    if (error) throw error;
-    d3.csv("list.csv", function(error2, data2) {
 
       console.log(data);
       console.log(data2);
-
-      let allData = [data,data2];
-
-      console.log(allData);
 
       x.domain(data.map(function(d) { return d.pair; }));
       y.domain([1e-6, d3.max(data, function(d) { return +d.weight; })]);
@@ -106,9 +100,6 @@ body {
   .enter()
   .append("rect")
   .attr("class", "bar")
-  // .filter(d => {
-  //   return d.pair === d.list;
-  // })
   .attr("x", function(d) { return x(d.pair); })
   .attr("y", function(d) { return y(+d.weight); })
   .attr("width", x.bandwidth())
@@ -159,6 +150,5 @@ body {
   //   }
   // })
 });
-  });
 
 </script>
