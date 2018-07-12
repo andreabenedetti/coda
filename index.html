@@ -58,27 +58,30 @@ body {
 
 // LOAD DATA
 
-  d3.csv("chemtrail.csv", function(d) {
-    d.weight = +d.weight;
-    return d;
-  }, function(error, data) {
+d3.csv("chemtrail.csv", function(d) {
+  d.weight = +d.weight;
+  return d;
+}, function(error, data) {
+  if (error) throw error;
+
+  d3.csv("users.csv", function(error, userData) {
     if (error) throw error;
 
-      console.log(data);
+    console.log(data);
 
-      x.domain(data.map(function(d) { return d.pair; }));
-      y.domain([1e-6, d3.max(data, function(d) { return +d.weight; })]);
-      opacity.domain(d3.extent(data, function(d) {
-        return +d.users;
-      }));
+    x.domain(data.map(function(d) { return d.pair; }));
+    y.domain([1e-6, d3.max(data, function(d) { return +d.weight; })]);
+    opacity.domain(d3.extent(data, function(d) {
+      return +d.users;
+    }));
 
-  let sum = d3.sum(data, function(d) {
-    return d.weight;
-  });
+    let sum = d3.sum(data, function(d) {
+      return d.weight;
+    });
 
-  let counter = 0;
+    let counter = 0;
 
-  let longTail = [];
+    let longTail = [];
 
   // listData.forEach(function(pair){
   //   arrayUser.push(pair)
@@ -116,15 +119,15 @@ body {
 // }
 //   });
 
-  console.log(counter)
-  console.log(longTail[0].pair)
+console.log(counter)
+console.log(longTail[0].pair)
 
-  d3.select("body").append("p")
-  .text("First pair of hashtags of the long tail:");
+d3.select("body").append("p")
+.text("First pair of hashtags of the long tail:");
 
-  d3.select("body").append("p")
-  .classed("bold", true)
-  .text(d => { return longTail[0].pair });
+d3.select("body").append("p")
+.classed("bold", true)
+.text(d => { return longTail[0].pair });
 
   // g.selectAll(".bar")
   // .attr("fill", d=> {
@@ -134,6 +137,7 @@ body {
   //     return "blue";
   //   }
   // })
+});
 });
 
 </script>
