@@ -58,14 +58,13 @@ body {
 
 // LOAD DATA
 
-  d3.csv("chemtrail.csv", function(d) {
+  d3.csv("chemtrails-bipartite.csv", function(d) {
     d.weight = +d.weight;
     return d;
   }, function(error, data) {
 
       console.log(data);
-      console.log(data2);
-
+      
       x.domain(data.map(function(d) { return d.pair; }));
       y.domain([1e-6, d3.max(data, function(d) { return +d.weight; })]);
       opacity.domain(d3.extent(data, function(d) {
@@ -125,10 +124,6 @@ body {
   //     hasValue = true;
   //   }
   // })
-
-  allData.forEach((d,i) => {
-    console.log(d)
-  });
 
   console.log(counter)
   console.log(sum)
