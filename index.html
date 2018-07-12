@@ -48,7 +48,7 @@ body {
 
   let y = d3.scalePow()
   .exponent(0.4)
-  .range([height, 0]);
+  .range([20, 0]);
 
   let opacity = d3.scaleLinear()
   .range([0,1]);
@@ -63,35 +63,14 @@ body {
     return d;
   }, function(error, data) {
     if (error) throw error;
-    d3.csv("list.csv", function(error2, data2) {
 
       console.log(data);
-      console.log(data2);
-
-      let allData = [data,data2];
-
-      console.log(allData);
 
       x.domain(data.map(function(d) { return d.pair; }));
       y.domain([1e-6, d3.max(data, function(d) { return +d.weight; })]);
       opacity.domain(d3.extent(data, function(d) {
         return +d.users;
       }));
-
-  // g.append("g")
-  //     .attr("class", "axis axis--x")
-  //     .attr("transform", "translate(0," + height + ")")
-  //     .call(d3.axisBottom(x));
-
-  g.append("g")
-  .attr("class", "axis axis--y")
-  .call(d3.axisLeft(y).ticks(10))
-  .append("text")
-  .attr("transform", "rotate(-90)")
-  .attr("y", 6)
-  .attr("dy", "0.71em")
-  .attr("text-anchor", "end")
-  .text("Frequency");
 
   let sum = d3.sum(data, function(d) {
     return d.weight;
@@ -101,18 +80,21 @@ body {
 
   let longTail = [];
 
+  // listData.forEach(function(pair){
+  //   arrayUser.push(pair)
+  // })
+
+  let arrayUser = [];
+
   g.selectAll(".bar")
   .data(data)
   .enter()
   .append("rect")
   .attr("class", "bar")
-  // .filter(d => {
-  //   return d.pair === d.list;
-  // })
   .attr("x", function(d) { return x(d.pair); })
-  .attr("y", function(d) { return y(+d.weight); })
+  .attr("y", height / 2)
   .attr("width", x.bandwidth())
-  .attr("height", function(d) { return height - y(+d.weight); })
+  .attr("height", 10)
   .attr("fill", function(d) {
     counter += d.weight;
     if (counter >= sum / 2) {
@@ -123,24 +105,18 @@ body {
           return "black";
         }
       })
-  .style("opacity", d => { return opacity(d.users)});
-
-  // data.forEach( (d, i) => {
-  //   // console.log(i)
-  //   counter += d.weight;
-  //   if (counter >= sum / 2 && !hasValue) {
-  //     console.log("ciao")
-  //     halfIndex = i;
-  //     hasValue = true;
-  //   }
-  // })
-
-  allData.forEach((d,i) => {
-    console.log(d)
-  });
+//   .style("opacity", d => { 
+//     let found = arrayUser.findIndex(function(el){
+//   return el == d.pair
+// });
+// if (found == -1) {
+//   return 0;
+// } else {
+//   return 1;
+// }
+//   });
 
   console.log(counter)
-  console.log(sum)
   console.log(longTail[0].pair)
 
   d3.select("body").append("p")
@@ -159,6 +135,5 @@ body {
   //   }
   // })
 });
-  });
 
 </script>
