@@ -2,12 +2,10 @@
 <meta charset="utf-8">
 <style>
 
-.bar:hover {
-  fill: brown;
-}
-
 body {
-  color: blue;
+  color: #006aff;
+  fill: #006aff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
 .axis--x path {
@@ -16,6 +14,16 @@ body {
 
 .axis--y path {
   display: none;
+}
+
+.axis--y line {
+  display: none;
+}
+
+.axis--y text, .axis--x text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 0.5rem;
+  font-weight: 500;
 }
 
 </style>
@@ -41,7 +49,7 @@ let y = d3.scalePow()
 let g = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.csv("data.csv", function(d) {
+d3.csv("chemtrails.csv", function(d) {
   d.weight = +d.weight;
   return d;
 }, function(error, data) {
@@ -57,21 +65,23 @@ d3.csv("data.csv", function(d) {
   //     .attr("transform", "translate(0," + height + ")")
   //     .call(d3.axisBottom(x));
 
-  // g.append("g")
-  //     .attr("class", "axis axis--y")
-  //     .call(d3.axisLeft(y).ticks(10))
-  //   .append("text")
-  //     .attr("transform", "rotate(-90)")
-  //     .attr("y", 6)
-  //     .attr("dy", "0.71em")
-  //     .attr("text-anchor", "end")
-  //     .text("Frequency");
+  g.append("g")
+      .attr("class", "axis axis--y")
+      .call(d3.axisLeft(y).ticks(10))
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("Frequency");
 
   let sum = d3.sum(data, function(d) {
     return d.weight;
   });
 
   let counter = 0;
+
+  let longTail = [];
 
   g.selectAll(".bar")
     .data(data)
@@ -85,14 +95,30 @@ d3.csv("data.csv", function(d) {
       .attr("fill", function(d) {
         counter += d.weight;
         if (counter >= sum / 2) {
-          return "red";
+          // console.log(d)
+          longTail.push(d);
+          return "#006aff";
         } else {
           return "black";
         }
       });
 
+  // data.forEach( (d, i) => {
+  //   // console.log(i)
+  //   counter += d.weight;
+  //   if (counter >= sum / 2 && !hasValue) {
+  //     console.log("ciao")
+  //     halfIndex = i;
+  //     hasValue = true;
+  //   }
+  // })
+
   console.log(counter)
   console.log(sum)
+  console.log(longTail[0].pair)
+
+  d3.select("body").append("p")
+  .text(d => { return longTail[0].pair });
 
   // g.selectAll(".bar")
   // .attr("fill", d=> {
