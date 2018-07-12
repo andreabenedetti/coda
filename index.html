@@ -58,7 +58,7 @@ body {
 
 // LOAD DATA
 
-  d3.csv("chemtrails-bipartite.csv", function(d) {
+  d3.csv("chemtrail.csv", function(d) {
     d.weight = +d.weight;
     return d;
   }, function(error, data) {
